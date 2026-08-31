@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Memotest Sustentable</title>
+
+  <link rel="stylesheet" 
+  href="style.css">
+
+</head>
+
+
+<body>
+
+  <div class="juego">
+
+    <!-- LOGO COCA-COLA -->
+
+    <div class="logo">
+
+      <img src="cocacola.jpeg" alt="Coca-Cola">
+
+    </div>
+
+
+    <h1>Memotest</h1>
+
+    <div class="subtitulo">
+      Cuidemos el medio ambiente
+    </div>
+
+
+    <div class="info">
+
+      <span>
+        Intentos:
+        <span id="movimientos">0</span>
+      </span>
+
+      <span>
+        Parejas:
+        <span id="parejas">0</span>/8
+      </span>
+
+    </div>
+
+
+    <div class="tablero" id="tablero"></div>
+
+
+    <button class="reiniciar" onclick="iniciarJuego()">
+      Reiniciar
+    </button>
+
+
+    <div class="mensaje">
+      ♻️ Cada pequeña acción cuenta para cuidar nuestro planeta.
+    </div>
+    
+
+  </div> 
+  
+    <footer class="copyright">
+    <img src="pakova.jpeg" alt="Pakova">
+    <p>© 2026 Pakova. Todos los derechos reservados.</p>
+    </footer> 
+
+
+  <script>
+
+    /*
+      ELEMENTOS DE SUSTENTABILIDAD
+      Cada emoji aparece dos veces
+      para formar las parejas.
+    */
+
+    const emojis = [
+
+      "♻️", "♻️",
+      "🌳", "🌳",
+      "💧", "💧",
+      "☀️", "☀️",
+      "🥤", "🥤",
+      "🌱", "🌱",
+      "🔋", "🔋",
+      "🌎", "🌎"
+
+    ];
+
+
+    let primeraCarta = null;
+    let segundaCarta = null;
+    let bloqueo = false;
+    let movimientos = 0;
+    let parejas = 0;
+
+
+    const tablero =
+      document.getElementById("tablero");
+
+
+    const movimientosTexto =
+      document.getElementById("movimientos");
+
+
+    const parejasTexto =
+      document.getElementById("parejas");
+
+
+    function mezclar(array) {
+
+      return array.sort(
+        () => Math.random() - 0.5
+      );
+
+    }
+
+
+    function iniciarJuego() {
+
+      tablero.innerHTML = "";
+
+      movimientos = 0;
+      parejas = 0;
+
+      primeraCarta = null;
+      segundaCarta = null;
+
+      bloqueo = false;
+
+
+      movimientosTexto.textContent =
+        movimientos;
+
+      parejasTexto.textContent =
+        parejas;
+
+
+      const cartas =
+        mezclar([...emojis]);
+
+
+      cartas.forEach((emoji) => {
+
+        const carta =
+          document.createElement("button");
+
+
+        carta.classList.add("carta");
+
+
+        carta.dataset.valor =
+          emoji;
+
+
+        /*
+          ANTES DE VOLTEAR:
+          aparece el logo de Coca-Cola
+        */
+
+        const logoCarta =
+          document.createElement("img");
+
+        logoCarta.src = "cocacola.jpeg";
+
+        logoCarta.alt = "Coca-Cola";
+
+        logoCarta.classList.add("logo-carta");
+
+
+        carta.appendChild(logoCarta);
+
+
+        carta.addEventListener(
+          "click",
+          () => voltearCarta(carta)
+        );
+
+
+        tablero.appendChild(carta);
+
+      });
+
+    }
+
+
+    function voltearCarta(carta) {
+
+      if (
+
+        bloqueo ||
+
+        carta === primeraCarta ||
+
+        carta.classList.contains("volteada") ||
+
+        carta.classList.contains("encontrada")
+
+      ) {
+
+        return;
+
+      }
+
+
+      carta.classList.add("volteada");
+
+
+      /*
+        Eliminamos el logo
+        y mostramos el elemento sustentable
+      */
+
+      carta.innerHTML = "";
+
+      carta.textContent =
+        carta.dataset.valor;
+
+
+      if (!primeraCarta) {
+
+        primeraCarta = carta;
+
+        return;
+
+      }
+
+
+      segundaCarta = carta;
+
+
+      movimientos++;
+
+
+      movimientosTexto.textContent =
+        movimientos;
+
+
+      comprobarPareja();
+
+    }
+
+
+    function comprobarPareja() {
+
+      const iguales =
+        primeraCarta.dataset.valor ===
+        segundaCarta.dataset.valor;
+
+
+      if (iguales) {
+
+        primeraCarta.classList.add(
+          "encontrada"
+        );
+
+        segundaCarta.classList.add(
+          "encontrada"
+        );
+
+
+        parejas++;
+
+
+        parejasTexto.textContent =
+          parejas;
+
+
+        resetearTurno();
+
+
+        if (parejas === 8) {
+
+          setTimeout(() => {
+
+            alert(
+              `🌎🎉 ¡Ganaste!
+
+Encontraste todas las parejas en ${movimientos} movimientos.
+
+♻️ ¡Cuidar el medio ambiente es tarea de todos!`
+            );
+
+          }, 300);
+
+        }
+
+      }
+
+      else {
+
+        bloqueo = true;
+
+
+        setTimeout(() => {
+
+          primeraCarta.classList.remove(
+            "volteada"
+          );
+
+          segundaCarta.classList.remove(
+            "volteada"
+          );
+
+
+          /*
+            Volvemos a mostrar el logo
+          */
+
+          primeraCarta.innerHTML = "";
+
+          const logo1 =
+            document.createElement("img");
+
+          logo1.src = "cocacola.jpeg";
+          logo1.alt = "Coca-Cola";
+          logo1.classList.add("logo-carta");
+
+          primeraCarta.appendChild(logo1);
+
+
+          segundaCarta.innerHTML = "";
+
+          const logo2 =
+            document.createElement("img");
+
+          logo2.src = "cocacola.jpeg";
+          logo2.alt = "Coca-Cola";
+          logo2.classList.add("logo-carta");
+
+          segundaCarta.appendChild(logo2);
+
+
+          resetearTurno();
+
+        }, 900);
+
+      }
+
+    }
+
+
+    function resetearTurno() {
+
+      primeraCarta = null;
+      segundaCarta = null;
+      bloqueo = false;
+
+    }
+
+
+    iniciarJuego();
+
+  </script>
+
+</body>
+
+</html>
